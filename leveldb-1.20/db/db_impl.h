@@ -64,6 +64,9 @@ class DBImpl : public DB {
   // bytes.
   void RecordReadSample(Slice key);
 
+
+
+
  private:
   friend class DB;
   struct CompactionState;
@@ -188,8 +191,9 @@ class DBImpl : public DB {
       this->bytes_written += c.bytes_written;
     }
   };
+  //cyf change for AiKV's dynamic parameter tuning
   CompactionStats stats_[config::kNumLevels];
-
+  //CompactionStats* stats_;
   // No copying allowed
   DBImpl(const DBImpl&);
   void operator=(const DBImpl&);
@@ -198,6 +202,9 @@ class DBImpl : public DB {
     return internal_comparator_.user_comparator();
   }
 };
+
+
+
 
 // Sanitize db options.  The caller should delete result.info_log if
 // it is not equal to src.info_log.

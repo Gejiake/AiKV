@@ -22,7 +22,7 @@
 #include <ctime>//cyf add for judge LOAD and RUN stages' starting time
 //cyf add the value should not be modified
 #define LONG_TAIL_LATENCY 154
-#define ABS_WOKLOAD_PATH "/home/cheng/YCSB-C-master/workloads"
+#define ABS_WOKLOAD_PATH "./workloads"
 #define WORKLOAD_MAX_NUM 10
 
 //cyf copy from leveldb for stats tail latency
@@ -58,8 +58,6 @@ static double run_latency[LONG_TAIL_LATENCY] = {0};
 static double total_loadtime = 0;
 static double total_runtime = 0;
 
-//static double total_loadnum = 0;
-//static double total_runnum = 0;
 static double total_loadnum = 0;
 static double total_runnum = 0;
 
@@ -67,6 +65,8 @@ static double max_loadlatency = 0;
 static double max_runlatency = 0;
 static double min_loadlatency = 9999.0;
 static double min_runlatency = 9999.0;
+
+
 
 using namespace std;
 
@@ -94,7 +94,7 @@ void PrintPercentLatency(double* array, double percent)
     std::cout<<"PrintPercentLatency total_runnum: "<<total_runnum<<std::endl;
     std::cout<<"The Percent "<<100*percent<<"% 's latency is: "<<partialLatency/tail_num<<" us"<<std::endl;
     //print to txt
-    std::ofstream out("/media/gejiake/application/output/output.txt",ios::app);
+    std::ofstream out("./output.txt",ios::app);
     out <<100*percent <<"%: " << partialLatency/tail_num <<" ";
     out.close();
 }
@@ -126,7 +126,7 @@ void PrintHistogram()
 //    PrintPercentLatency(run_latency, 0.999);
 //    PrintPercentLatency(run_latency, 0.9999);
     //print to txt 'A newline'
-    std::ofstream out("/media/gejiake/application/output/output.txt",ios::app);
+    std::ofstream out("./output.txt",ios::app);
     out <<std::endl;
     out.close();
 }
@@ -266,12 +266,6 @@ int main(const int argc, const char *argv[]) {
   std::cout << total_ops / load_duration / 1000 << endl;
 
 
-  /*
-  TOTAL_OPS_INCLUDE_LOAD_AND_RUN += total_ops;
-  TOTAL_TIME_INCLUDE_LOAD_AND_RUN += load_duration;
-  */
-
-  //std::cout << (total_ops*1000) / (total_loadtime / 1000000)<< endl;
 
     sleep(120);//wait 10second for background compaction finished
 
@@ -313,23 +307,18 @@ int main(const int argc, const char *argv[]) {
                 << endl;
 
       //print to txt
-      std::ofstream out("/media/gejiake/application/output/output.txt",ios::app);
-      out << "total_ops: "<< (props_set.size() * total_ops) / (duration * 1000) << " ";
+      std::ofstream out("./output.txt",ios::app);
+      out << "Throughput(KTPS): "<< (props_set.size() * total_ops) / (duration * 1000) <<std::endl;
+      out <<"workload_read_ops: "<< ycsbc::wl_read_ops<<std::endl;
+      out <<"workload_update_ops: "<< ycsbc::wl_update_ops<<std::endl;
+      out <<"workload_insert_ops: "<< ycsbc::wl_insert_ops<<std::endl;
+      out <<"workload_scan_ops: "<< ycsbc::wl_scan_ops<<std::endl;
+      out <<"workload_readmodifywrite_ops: "<< ycsbc::wl_rmw_ops<<std::endl;
       out.close();
 
-      /*
-       TOTAL_OPS_INCLUDE_LOAD_AND_RUN =
-              TOTAL_OPS_INCLUDE_LOAD_AND_RUN + (props_set.size() * total_ops);
-      TOTAL_TIME_INCLUDE_LOAD_AND_RUN += duration;
-      */
 
-      //sleep(100);//wait Run stage's background compaction completed
 
   }
-       /* std::cout<<"The TOTAL KTPS(average KTPS = (Load + Run)'s ops / TOTAL_TIME): "
-                << TOTAL_OPS_INCLUDE_LOAD_AND_RUN / (TOTAL_TIME_INCLUDE_LOAD_AND_RUN * 1000)
-                <<std::endl;
-                */
 
 
   PrintHistogram();
@@ -364,6 +353,14 @@ std::string ParseCommandLine(int argc, const char *argv[], std::vector<utils::Pr
       }
       props[0].SetProperty("dbname", argv[argindex]);
       argindex++;
+    }else if (strcmp(argv[argindex], "-db_path") == 0) {
+      argindex++;
+      if (argindex >= argc) {
+        UsageMessage(argv[0]);
+        exit(0);
+      }
+      props[0].SetProperty("db_path", argv[argindex]);
+      argindex++;
     } else if (strcmp(argv[argindex], "-write_buffer_size") == 0) {
         argindex++;
         if (argindex >= argc) {
@@ -372,7 +369,39 @@ std::string ParseCommandLine(int argc, const char *argv[], std::vector<utils::Pr
         }
         props[0].SetProperty("write_buffer_size", argv[argindex]);
         argindex++;
-    } else if (strcmp(argv[argindex], "-block_size") == 0) {
+    }else if (strcmp(argv[argindex], "-LSMFanout") == 0) {
+        argindex++;
+        if (argindex >= argc) {
+            UsageMessage(argv[0]);
+            exit(0);
+        }
+        props[0].SetProperty("LSMFanout", argv[argindex]);
+        argindex++;
+    }else if (strcmp(argv[argindex], "-L0_CompactionTrigger") == 0) {
+        argindex++;
+        if (argindex >= argc) {
+            UsageMessage(argv[0]);
+            exit(0);
+        }
+        props[0].SetProperty("L0_CompactionTrigger", argv[argindex]);
+        argindex++;
+    }else if (strcmp(argv[argindex], "-L0_SlowdownWritesTrigger") == 0) {
+        argindex++;
+        if (argindex >= argc) {
+            UsageMessage(argv[0]);
+            exit(0);
+        }
+        props[0].SetProperty("L0_SlowdownWritesTrigger", argv[argindex]);
+        argindex++;
+    }else if (strcmp(argv[argindex], "-L0_StopWritesTrigger") == 0) {
+        argindex++;
+        if (argindex >= argc) {
+            UsageMessage(argv[0]);
+            exit(0);
+        }
+        props[0].SetProperty("L0_StopWritesTrigger", argv[argindex]);
+        argindex++;
+    }else if (strcmp(argv[argindex], "-block_size") == 0) {
         argindex++;
         if (argindex >= argc) {
             UsageMessage(argv[0]);
@@ -396,30 +425,6 @@ std::string ParseCommandLine(int argc, const char *argv[], std::vector<utils::Pr
         }
         props[0].SetProperty("max_file_size", argv[argindex]);
         argindex++;
-    } else if (strcmp(argv[argindex], "-host") == 0) {
-      argindex++;
-      if (argindex >= argc) {
-        UsageMessage(argv[0]);
-        exit(0);
-      }
-      props[0].SetProperty("host", argv[argindex]);
-      argindex++;
-    } else if (strcmp(argv[argindex], "-port") == 0) {
-      argindex++;
-      if (argindex >= argc) {
-        UsageMessage(argv[0]);
-        exit(0);
-      }
-      props[0].SetProperty("port", argv[argindex]);
-      argindex++;
-    } else if (strcmp(argv[argindex], "-slaves") == 0) {
-      argindex++;
-      if (argindex >= argc) {
-        UsageMessage(argv[0]);
-        exit(0);
-      }
-      props[0].SetProperty("slaves", argv[argindex]);
-      argindex++;
     } else if (strcmp(argv[argindex], "-P") == 0) {
       argindex++;
       if (argindex >= argc) {

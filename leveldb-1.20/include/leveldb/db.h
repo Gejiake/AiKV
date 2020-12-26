@@ -142,6 +142,12 @@ class DB {
   //    db->CompactRange(NULL, NULL);
   virtual void CompactRange(const Slice* begin, const Slice* end) = 0;
 
+  static void setStaticParameters(
+  int kL0_CompactionTrigger,//cyf change for AiKV parameters 
+  int kL0_SlowdownWritesTrigger,
+  int kL0_StopWritesTrigger,
+  int kLSMFanout);
+
  private:
   // No copying allowed
   DB(const DB&);
@@ -157,6 +163,8 @@ Status DestroyDB(const std::string& name, const Options& options);
 // Some data may be lost, so be careful when calling this function
 // on a database that contains important information.
 Status RepairDB(const std::string& dbname, const Options& options);
+
+
 
 }  // namespace leveldb
 

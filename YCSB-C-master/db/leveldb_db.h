@@ -10,6 +10,7 @@
 #include "leveldb/db.h"
 #include "leveldb/env.h"
 #include "leveldb/write_batch.h"
+#include "leveldb/filter_policy.h"
 
 
 
@@ -17,7 +18,16 @@ namespace ycsbc {
 
 class Level_DB : public DB {
 public:
-    Level_DB(const int write_buffer_size, const int block_size, const int max_open_files, const int max_file_size);
+    Level_DB(
+    const std::string db_path,
+    const uint64_t write_buffer_size, 
+    const uint64_t block_size,
+    const int max_open_files, 
+    const uint64_t max_file_size,
+    const int kL0_CompactionTrigger,//cyf add
+    const int kL0_SlowdownWritesTrigger,
+    const int kL0_StopWritesTrigger,
+    const int kLSMFanout);
 
     ~Level_DB(){
         delete db_;

@@ -1,9 +1,7 @@
 CC=g++
-CFLAGS=-std=c++11 -g -Wall -pthread -I./ -L ./ -L/usr/local/lib
-#LDFLAGS= -lpthread -ltbb -lhiredis -lrocksdb_debug -lzstd -llz4 -lbz2 -lz -lsnappy -lleveldb -lbcc
-LDFLAGS= -lpthread -ltbb -lhiredis -lrocksdb_debug -lzstd -llz4 -lbz2 -lz -lsnappy -lleveldb
-#LDFLAGS= -lpthread -ltbb -lhiredis -lrocksdb -lzstd -llz4 -lbz2 -lz -lsnappy -lpmemkv
-SUBDIRS=core db redis
+CFLAGS=-std=c++11 -g -Wall -pthread -I./ -L ./ 
+LDFLAGS= -lpthread  -lsnappy -lleveldb
+SUBDIRS=core db 
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
 OBJECTS=$(SUBSRCS:.cc=.o)
 EXEC=ycsbc

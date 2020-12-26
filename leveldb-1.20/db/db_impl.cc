@@ -32,6 +32,9 @@
 #include "util/coding.h"
 #include "util/logging.h"
 #include "util/mutexlock.h"
+//cyf add for AiKV
+#include <fstream>
+#include <iostream>
 
 namespace leveldb {
 
@@ -143,9 +146,17 @@ DBImpl::DBImpl(const Options& raw_options, const std::string& dbname)
 
   versions_ = new VersionSet(dbname_, &options_, table_cache_,
                              &internal_comparator_);
+  //stats_ = new CompactionStats[config::kNumLevels];
 }
 
 DBImpl::~DBImpl() {
+    std::ofstream out("./output.txt",std::ios::app);
+    for(int i = 0;i< config::kNumLevels;i++){
+    out <<"L"<<i<<"_CompactionTime: "<<stats_->micros<<std::endl;
+    out <<"L"<<i<<"_CompactionReadBytes: "<<stats_->bytes_read<<std::endl; 
+    out <<"L"<<i<<"_CompactionWrittenBytes: "<<stats_->bytes_written<<std::endl;
+    }
+    out.close();
   // Wait for background work to finish
   mutex_.Lock();
   shutting_down_.Release_Store(this);  // Any non-NULL value is ok
@@ -1487,8 +1498,26 @@ Status DB::Delete(const WriteOptions& opt, const Slice& key) {
 
 DB::~DB() { }
 
+void DB::setStaticParameters(
+  int kL0_CompactionTrigger,//cyf change for AiKV parameters 
+  int kL0_SlowdownWritesTrigger,
+  int kL0_StopWritesTrigger,
+  int kLSMFanout){
+  config::kL0_CompactionTrigger = kL0_CompactionTrigger;
+  config::kL0_SlowdownWritesTrigger = kL0_SlowdownWritesTrigger;
+  config::kL0_StopWritesTrigger = kL0_StopWritesTrigger;
+  config::kLSMFanout = kLSMFanout; 
+
+  std::cout<<"kL0_CompactionTrigger: "<<config::kL0_CompactionTrigger<<std::endl;
+  std::cout<<"kL0_SlowdownWritesTrigger: "<<config::kL0_SlowdownWritesTrigger<<std::endl;
+  std::cout<<"kL0_StopWritesTrigger: "<<config::kL0_StopWritesTrigger<<std::endl;
+  std::cout<<"kLSMFanout: "<<config::kLSMFanout<<std::endl;
+  
+  }
+
 Status DB::Open(const Options& options, const std::string& dbname,
                 DB** dbptr) {
+
   *dbptr = NULL;
 
   DBImpl* impl = new DBImpl(options, dbname);

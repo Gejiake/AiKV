@@ -1,9 +1,20 @@
 #include "db/leveldb_db.h"
-
+#include "leveldb/filter_policy.h" 
 namespace ycsbc{
-Level_DB::Level_DB(const int write_buffer_size, const int block_size, const int max_open_files, const int max_file_size)
+
+Level_DB::Level_DB(
+ const std::string db_path,
+ const uint64_t write_buffer_size, 
+ const uint64_t block_size,
+ const int max_open_files, 
+ const uint64_t max_file_size,
+ //cyf add for static var tuning
+ const int kL0_CompactionTrigger,
+ const int kL0_SlowdownWritesTrigger,
+ const int kL0_StopWritesTrigger,
+ const int kLSMFanout)
 {
-    std::string db_path = "/mnt/ssd/ldb_2pc";
+    if(db_path == "")   std::cout << "db_path is NULL<<std::endl";
     leveldb::Options options;
     //cyf add modify them to change performance
     options.create_if_missing = !leveldb::Options().create_if_missing;
@@ -12,13 +23,21 @@ Level_DB::Level_DB(const int write_buffer_size, const int block_size, const int 
     options.max_open_files = max_open_files;
     //师兄注释掉的,不知为何!
     options.max_file_size = max_file_size;
-    options.block_cache = nullptr;
+    options.block_cache = leveldb::NewLRUCache(8 << 20);//8MB for block cache
     options.compression = leveldb::Options().compression;
+    options.filter_policy = leveldb::NewBloomFilterPolicy(10);//for bloom filter
     //options.max_open_files = 5000;
     //options.compression = leveldb::kNoCompression;
 
 
+
     leveldb::Status s =leveldb::DB::Open(options, db_path, &db_);
+    db_->setStaticParameters(
+    kL0_CompactionTrigger,
+    kL0_SlowdownWritesTrigger,
+    kL0_StopWritesTrigger,
+    kLSMFanout);
+
     if (!s.ok()) {
       fprintf(stderr, "open error: %s\n", s.ToString().c_str());
       exit(1);

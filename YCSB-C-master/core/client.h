@@ -15,6 +15,12 @@
 #include "utils.h"
 
 namespace ycsbc {
+//cyf add for AiKV stats
+static uint64_t wl_read_ops = 0;
+static uint64_t wl_update_ops = 0;
+static uint64_t wl_insert_ops = 0;
+static uint64_t wl_scan_ops = 0;
+static uint64_t wl_rmw_ops = 0;
 
 class Client {
  public:
@@ -49,18 +55,23 @@ inline bool Client::DoTransaction() {
   switch (workload_.NextOperation()) {
     case READ:
       status = TransactionRead();
+      wl_read_ops++;
       break;
     case UPDATE:
       status = TransactionUpdate();
+      wl_update_ops++;
       break;
     case INSERT:
       status = TransactionInsert();
+      wl_insert_ops++;
       break;
     case SCAN:
       status = TransactionScan();
+      wl_scan_ops++;
       break;
     case READMODIFYWRITE:
       status = TransactionReadModifyWrite();
+      wl_scan_ops++;
       break;
     default:
       throw utils::Exception("Operation request is not recognized!");

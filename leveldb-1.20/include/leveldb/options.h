@@ -27,6 +27,9 @@ enum CompressionType {
   kSnappyCompression = 0x1
 };
 
+
+
+
 // Options to control the behavior of a database (passed to DB::Open)
 struct Options {
   // -------------------
