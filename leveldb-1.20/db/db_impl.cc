@@ -152,9 +152,9 @@ DBImpl::DBImpl(const Options& raw_options, const std::string& dbname)
 DBImpl::~DBImpl() {
     std::ofstream out("./output.txt",std::ios::app);
     for(int i = 0;i< config::kNumLevels;i++){
-    out <<"L"<<i<<"_CompactionTime: "<<stats_->micros<<std::endl;
-    out <<"L"<<i<<"_CompactionReadBytes: "<<stats_->bytes_read<<std::endl; 
-    out <<"L"<<i<<"_CompactionWrittenBytes: "<<stats_->bytes_written<<std::endl;
+    out <<"L"<<i<<"_CompactionTime: "<<stats_[i].micros<<std::endl;
+    out <<"L"<<i<<"_CompactionReadBytes: "<<stats_[i].bytes_read<<std::endl; 
+    out <<"L"<<i<<"_CompactionWrittenBytes: "<<stats_[i].bytes_written<<std::endl;
     }
     out.close();
   // Wait for background work to finish
