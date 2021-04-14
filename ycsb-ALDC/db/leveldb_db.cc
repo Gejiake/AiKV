@@ -18,7 +18,8 @@ Level_DB::Level_DB(
  const int kBufferCompactEndLevel,
  const double kLDCMergeSizeRatio,
  const bool kUseAdaptiveLDC,
- const int kThresholdBufferNum)
+ const int kThresholdBufferNum,
+ const uint64_t kLDCBCCProbeInterval)
 {
     if(db_path == "")   std::cout << "db_path is NULL<<std::endl";
     leveldb::Options options;
@@ -48,7 +49,8 @@ Level_DB::Level_DB(
     kLDCMergeSizeRatio,
     kUseAdaptiveLDC,
     kThresholdBufferNum,
-    block_size
+    block_size,
+    kLDCBCCProbeInterval
     );
 
     if (!s.ok()) {

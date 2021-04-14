@@ -95,7 +95,7 @@ void PrintPercentLatency(double* array, double percent)
     std::cout<<"The Percent "<<100*percent<<"% 's latency is: "<<partialLatency/tail_num<<" us"<<std::endl;
     //print to txt
     std::ofstream out("./output.txt",ios::app);
-    out <<100*percent <<"%: " << partialLatency/tail_num <<" ";
+    out <<"P"<<100*percent <<" %: " << partialLatency/tail_num <<"\n";
     out.close();
 }
 
@@ -106,12 +106,12 @@ void PrintHistogram()
     std::cout<<"The max load latency:\t"<<max_loadlatency<<std::endl;
     std::cout<<"The min load latency:\t"<<min_loadlatency<<std::endl;
     std::cout<<"The average load latency:\t"<< total_loadtime / total_loadnum<<"  us"<<std::endl;
-//    PrintPercentLatency(load_latency, 0.50);
-//    PrintPercentLatency(load_latency, 0.90);
-//    PrintPercentLatency(load_latency, 0.95);
-//    PrintPercentLatency(load_latency, 0.99);
-//    PrintPercentLatency(load_latency, 0.999);
-//    PrintPercentLatency(load_latency, 0.9999);
+    PrintPercentLatency(load_latency, 0.50);
+    PrintPercentLatency(load_latency, 0.90);
+    PrintPercentLatency(load_latency, 0.95);
+    PrintPercentLatency(load_latency, 0.99);
+    PrintPercentLatency(load_latency, 0.999);
+    PrintPercentLatency(load_latency, 0.9999);
 
     std::cout<<"======================================================================"<<std::endl;
 
@@ -119,12 +119,12 @@ void PrintHistogram()
     std::cout<<"The max Run latency:\t"<<max_runlatency<<std::endl;
     std::cout<<"The min Run latency:\t"<<min_runlatency<<std::endl;
     std::cout<<"The average Run latency:\t"<< total_runtime / total_runnum<<"  us"<<std::endl;
-//    PrintPercentLatency(run_latency, 0.50);
-//    PrintPercentLatency(run_latency, 0.90);
-//    PrintPercentLatency(run_latency, 0.95);
+    PrintPercentLatency(run_latency, 0.50);
+    PrintPercentLatency(run_latency, 0.90);
+    PrintPercentLatency(run_latency, 0.95);
     PrintPercentLatency(run_latency, 0.99);
-//    PrintPercentLatency(run_latency, 0.999);
-//    PrintPercentLatency(run_latency, 0.9999);
+    PrintPercentLatency(run_latency, 0.999);
+    PrintPercentLatency(run_latency, 0.9999);
     //print to txt 'A newline'
     std::ofstream out("./output.txt",ios::app);
     out <<std::endl;
@@ -308,7 +308,10 @@ int main(const int argc, const char *argv[]) {
 
       //print to txt
       std::ofstream out("./output.txt",ios::app);
-      out << "Throughput(KTPS): "<< (props_set.size() * total_ops) / (duration * 1000) <<std::endl;
+      out << "Load_stage Throughput(KTPS): "<< total_ops / load_duration / 1000 <<std::endl;
+      out << "Run_stage Throughput(KTPS): "<< (props_set.size() * total_ops) / (duration * 1000) <<std::endl;
+      out << "Load+Run_stage Throughput(KTPS): "<< ((props_set.size() +1 )* total_ops) / ((duration+load_duration) * 1000)<<std::endl;
+
       out <<"workload_read_ops: "<< ycsbc::wl_read_ops<<std::endl;
       out <<"workload_update_ops: "<< ycsbc::wl_update_ops<<std::endl;
       out <<"workload_insert_ops: "<< ycsbc::wl_insert_ops<<std::endl;
@@ -409,13 +412,21 @@ std::string ParseCommandLine(int argc, const char *argv[], std::vector<utils::Pr
         }
         props[0].SetProperty("block_size", argv[argindex]);
         argindex++;
-    } else if (strcmp(argv[argindex], "-max_open_files") == 0) {
+    }  else if (strcmp(argv[argindex], "-max_open_files") == 0) {
         argindex++;
         if (argindex >= argc) {
             UsageMessage(argv[0]);
             exit(0);
         }
         props[0].SetProperty("max_open_files", argv[argindex]);
+        argindex++;
+    }else if (strcmp(argv[argindex], "-max_file_size") == 0) {
+        argindex++;
+        if (argindex >= argc) {
+            UsageMessage(argv[0]);
+            exit(0);
+        }
+        props[0].SetProperty("max_file_size", argv[argindex]);
         argindex++;
     } else if (strcmp(argv[argindex], "-LDCStartLevel") == 0) {
         argindex++;
@@ -456,6 +467,14 @@ std::string ParseCommandLine(int argc, const char *argv[], std::vector<utils::Pr
             exit(0);
         }
         props[0].SetProperty("ThresholdBufferNum", argv[argindex]);
+        argindex++;
+    }else if (strcmp(argv[argindex], "-LDCBCCProbeInterval") == 0) {
+        argindex++;
+        if (argindex >= argc) {
+            UsageMessage(argv[0]);
+            exit(0);
+        }
+        props[0].SetProperty("LDCBCCProbeInterval", argv[argindex]);
         argindex++;
     }else if (strcmp(argv[argindex], "-P") == 0) {
       argindex++;

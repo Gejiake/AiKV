@@ -33,7 +33,8 @@ public:
     const int kBufferCompactEndLevel,
     const double kLDCMergeSizeRatio,
     const bool kUseAdaptiveLDC,
-    const int kThresholdBufferNum);
+    const int kThresholdBufferNum,
+    const uint64_t kLDCBCCProbeInterval);
 
     ~Level_DB(){
         delete db_;

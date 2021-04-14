@@ -47,13 +47,14 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
         if(UseAdaptiveLDC == "true") UALDC = true;
 
         int ThresholdBufferNum = stoi(props.GetProperty("ThresholdBufferNum","10"));
+        uint64_t LDCBCCProbeInterval = stoi(props.GetProperty("LDCBCCProbeInterval","5"));
 
         return new Level_DB(
          db_path,
-         write_buffer_size<<20,
-         block_size<<10, 
+         write_buffer_size<<20,//MB
+         block_size<<10, //kB
          max_open_files,
-         max_file_size<<20,
+         max_file_size<<20,//MB
          L0_CompactionTrigger,
          L0_SlowdownWritesTrigger,
          L0_StopWritesTrigger,
@@ -62,7 +63,8 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
          LDCEndLevel,
          LDCMergeSizeRatio,
          UALDC,
-         ThresholdBufferNum);
+         ThresholdBufferNum,
+         LDCBCCProbeInterval);
     }
 
 	else return NULL;
