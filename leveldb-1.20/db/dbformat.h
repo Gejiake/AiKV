@@ -19,16 +19,22 @@ namespace leveldb {
 // Grouping of constants.  We may want to make some of these
 // parameters set via options.
 namespace config {
+//static const int kNumLevels = 7;
+//cyf change for dynamic tuning
 static const int kNumLevels = 7;
 
 // Level-0 compaction is started when we hit this many files.
-static const int kL0_CompactionTrigger = 4;
+//static const int kL0_CompactionTrigger = 4;
+//cyf change for dynamic tuning
+static  int kL0_CompactionTrigger = 4;
 
 // Soft limit on number of level-0 files.  We slow down writes at this point.
-static const int kL0_SlowdownWritesTrigger = 8;
+//cyf change for dynamic tuning
+static  int kL0_SlowdownWritesTrigger = 8;
 
 // Maximum number of level-0 files.  We stop writes at this point.
-static const int kL0_StopWritesTrigger = 12;
+//cyf change for dynamic tuning
+static  int kL0_StopWritesTrigger = 12;
 
 // Maximum level to which a new compacted memtable is pushed if it
 // does not create overlap.  We try to push to level 2 to avoid the
@@ -41,6 +47,8 @@ static const int kMaxMemCompactLevel = 2;
 // Approximate gap in bytes between samples of data read during iteration.
 static const int kReadBytesPeriod = 1048576;
 
+//cyf add for auto-tuning to change Fanout
+static int kLSMFanout = 10;
 }  // namespace config
 
 class InternalKey;
